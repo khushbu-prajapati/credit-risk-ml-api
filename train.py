@@ -1,0 +1,53 @@
+import pandas as pd
+import pickle
+from sqlalchemy import create_engine
+
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.ensemble import RandomForestClassifier
+
+# ---------- DATABASE CONNECTION ----------
+engine = create_engine(
+    "mssql+pyodbc://localhost/CreditRiskDB?driver=ODBC+Driver+17+for+SQL+Server"
+)
+
+# ---------- LOAD DATA ----------
+df = pd.read_sql("SELECT * FROM credit_risk_dataset", engine)
+
+# ---------- BASIC CLEANING ----------
+df = df.dropna()
+
+# ---------- FEATURES ----------
+X = df.drop("loan_status", axis=1)
+print(X.columns)
+y = df["loan_status"]
+
+cat_cols = X.select_dtypes(include="object").columns.tolist()
+num_cols = X.select_dtypes(exclude="object").columns.tolist()
+
+# ---------- SPLIT ----------
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+# ---------- PIPELINE ----------
+preprocess = ColumnTransformer([
+    ("num", StandardScaler(), num_cols),
+    ("cat", OneHotEncoder(handle_unknown="ignore"), cat_cols)
+])
+
+model = Pipeline([
+    ("preprocess", preprocess),
+    ("model", RandomForestClassifier(n_estimators=200, random_state=42))
+])
+
+# ---------- TRAIN ----------
+model.fit(X_train, y_train)
+
+# ---------- SAVE MODEL ----------
+with open("model.pkl", "wb") as f:
+    pickle.dump(model, f)
+
+print("✅ Model trained and saved as model.pkl")

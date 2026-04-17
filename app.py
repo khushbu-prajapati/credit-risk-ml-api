@@ -1,11 +1,16 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from config import MODEL_PATH
 import pandas as pd
 import pickle
+import logging
 
+logging.basicConfig(level=logging.INFO)
 # ---------- LOAD MODEL ----------
-model = pickle.load(open("model.pkl", "rb"))
-
+try:
+    model = pickle.load(open(MODEL_PATH, "rb"))
+except Exception as e:
+    raise RuntimeError(f"Model loading failed: {e}")
 app = FastAPI()
 
 # ⚠️ IMPORTANT: apne dataset ke columns yaha likho
@@ -30,6 +35,20 @@ def home():
 # ---------- PREDICT ----------
 @app.post("/predict")
 def predict(data: InputData):
-    df = pd.DataFrame([data.dict()])
-    prediction = model.predict(df)
-    return {"prediction": int(prediction[0])}
+    try:
+        logging.info(f"Input received: {data}")
+
+        df = pd.DataFrame([data.dict()])
+        prediction = model.predict(df)
+
+        logging.info(f"Prediction: {prediction[0]}")
+        risk = "High Risk" if prediction[0] == 1 else "Low Risk"
+
+        return {
+            "prediction": int(prediction[0]),
+            "risk_level": risk
+        }
+
+    except Exception as e:
+        logging.error(f"Error occurred: {str(e)}")
+        return {"error": str(e)}

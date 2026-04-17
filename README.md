@@ -1,35 +1,98 @@
-# Credit Risk Prediction API
+# Credit Risk Prediction API 🚀
 
-## Overview
-This project predicts whether a person will default on a loan using Machine Learning.
+## 📌 Overview
 
-## Features
-- Data preprocessing using pipeline
-- Random Forest model
-- FastAPI deployment
-- Real-time prediction API
+This project builds an end-to-end Machine Learning system to predict whether a loan applicant is likely to default.
+The model is trained using financial and demographic data and deployed using FastAPI for real-time predictions.
 
-## Tech Stack
-- Python
-- Scikit-learn
-- FastAPI
+---
 
-## How to Run
+## 🎯 Business Problem
 
-1. Install dependencies:
+Financial institutions need to identify high-risk loan applicants to minimize financial losses.
+This project helps in predicting loan default risk based on user attributes.
+
+---
+
+## 🧠 Solution
+
+* Built a machine learning pipeline for data preprocessing and modeling
+* Used Random Forest Classifier for prediction
+* Extracted feature importance to understand key risk drivers
+* Deployed the model using FastAPI for real-time inference
+
+---
+
+## ⚙️ Features
+
+* End-to-end ML pipeline (preprocessing + model)
+* Feature importance analysis
+* FastAPI-based REST API
+* Input validation using Pydantic
+* Logging and error handling
+* Real-time prediction system
+
+---
+
+## 🛠️ Tech Stack
+
+* Python
+* Pandas, NumPy
+* Scikit-learn
+* FastAPI
+* SQLAlchemy
+* PyODBC
+
+---
+
+## 📊 Key Insights (Feature Importance)
+
+Top factors affecting loan default:
+
+* loan_percent_income (most important)
+* person_income
+* loan_int_rate
+* loan_amnt
+
+👉 Model focuses more on financial burden rather than demographic features.
+
+---
+
+## 🚀 How to Run
+
+### 1. Install dependencies
+
+```
 pip install -r requirements.txt
+```
 
-2. Train the model:
+### 2. Train the model
+
+```
 python train.py
+```
 
-3. Run API:
+### 3. Run the API
+
+```
 uvicorn app:app --reload
+```
 
-## API Endpoint
+### 4. Open Swagger UI
 
-POST /predict
+```
+http://127.0.0.1:8000/docs
+```
 
-Example Input:
+---
+
+## 🔌 API Endpoint
+
+### POST `/predict`
+
+#### Example Input:
+
+```json
 {
   "person_age": 30,
   "person_income": 50000,
@@ -43,6 +106,49 @@ Example Input:
   "cb_person_default_on_file": "N",
   "cb_person_cred_hist_length": 8
 }
+```
 
-## Note
-Run train.py before starting the API to generate model.pkl
+#### Example Output:
+
+```json
+{
+  "prediction": 1,
+  "risk_level": "High Risk"
+}
+```
+
+---
+
+## 📁 Project Structure
+
+```
+credit-risk-project/
+│
+├── app.py
+├── train.py
+├── config.py
+├── requirements.txt
+├── README.md
+└── .gitignore
+```
+
+---
+
+## ⚠️ Important Notes
+
+* Run `train.py` before starting the API to generate `model.pkl`
+* `model.pkl` is not included in the repository (to keep repo lightweight)
+
+---
+
+## 💡 Future Improvements
+
+* Add SHAP for explainable AI
+* Deploy on cloud (Render / AWS)
+* Build frontend UI (Streamlit)
+
+---
+
+## 👩‍💻 Author
+
+Khushbu Prajapati

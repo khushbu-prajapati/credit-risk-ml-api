@@ -7,6 +7,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.ensemble import RandomForestClassifier
+
 from config import DATABASE_URL, MODEL_PATH
 
 # ---------- DATABASE CONNECTION ----------
@@ -44,8 +45,24 @@ model = Pipeline([
 # ---------- TRAIN ----------
 model.fit(X_train, y_train)
 
+# ---------- FEATURE IMPORTANCE ----------
+ohe = model.named_steps["preprocess"].named_transformers_["cat"]
+cat_features = ohe.get_feature_names_out(cat_cols)
+
+all_features = num_cols + list(cat_features)
+
+importances = model.named_steps["model"].feature_importances_
+
+feature_importance_df = pd.DataFrame({
+    "feature": all_features,
+    "importance": importances
+}).sort_values(by="importance", ascending=False)
+
+print("\n🔥 Top 10 Important Features:\n")
+print(feature_importance_df.head(10))
+
 # ---------- SAVE MODEL ----------
 with open(MODEL_PATH, "wb") as f:
     pickle.dump(model, f)
 
-print("✅ Model trained and saved as model.pkl")
+print("\n✅ Model trained and saved as model.pkl")

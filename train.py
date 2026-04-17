@@ -7,11 +7,10 @@ from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.ensemble import RandomForestClassifier
+from config import DATABASE_URL, MODEL_PATH
 
 # ---------- DATABASE CONNECTION ----------
-engine = create_engine(
-    "mssql+pyodbc://localhost/CreditRiskDB?driver=ODBC+Driver+17+for+SQL+Server"
-)
+engine = create_engine(DATABASE_URL)
 
 # ---------- LOAD DATA ----------
 df = pd.read_sql("SELECT * FROM credit_risk_dataset", engine)
@@ -21,7 +20,6 @@ df = df.dropna()
 
 # ---------- FEATURES ----------
 X = df.drop("loan_status", axis=1)
-print(X.columns)
 y = df["loan_status"]
 
 cat_cols = X.select_dtypes(include="object").columns.tolist()
@@ -47,7 +45,7 @@ model = Pipeline([
 model.fit(X_train, y_train)
 
 # ---------- SAVE MODEL ----------
-with open("model.pkl", "wb") as f:
+with open(MODEL_PATH, "wb") as f:
     pickle.dump(model, f)
 
 print("✅ Model trained and saved as model.pkl")
